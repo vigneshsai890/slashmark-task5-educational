@@ -3,58 +3,63 @@ from pages.base_page import BasePage
 
 
 class QuizPage(BasePage):
-    QUIZ_CONTAINER = (By.ID, "quiz-container")
-    QUESTION_TEXT = (By.CSS_SELECTOR, ".question-text")
-    ANSWER_OPTIONS = (By.CSS_SELECTOR, ".answer-option")
-    ANSWER_RADIO = (By.CSS_SELECTOR, ".answer-option input[type='radio']")
-    SUBMIT_QUIZ_BTN = (By.ID, "submit-quiz")
-    NEXT_QUESTION_BTN = (By.ID, "next-question")
-    PREV_QUESTION_BTN = (By.ID, "prev-question")
-    QUIZ_TIMER = (By.CSS_SELECTOR, ".quiz-timer")
-    QUESTION_COUNTER = (By.CSS_SELECTOR, ".question-counter")
+    URL = "https://www.w3schools.com/quiztest/quiztest.asp?qtest=HTML"
 
-    SCORE_DISPLAY = (By.CSS_SELECTOR, ".quiz-score")
-    FEEDBACK = (By.CSS_SELECTOR, ".quiz-feedback")
-    RETAKE_BTN = (By.ID, "retake-quiz")
+    QUIZ_FORM = (By.CSS_SELECTOR, "form")
+    RADIO_BUTTONS = (By.CSS_SELECTOR, "input[type='radio']")
+    SUBMIT_BUTTONS = (By.CSS_SELECTOR, "button[type='submit']")
+    QUESTION_HEADER = (By.CSS_SELECTOR, "form h2")
+    LABELS = (By.CSS_SELECTOR, "label")
+
+    def open(self):
+        self.driver.get(self.URL)
+        self._remove_overlays()
+        return self
+
+    def _remove_overlays(self):
+        self.driver.execute_script("""
+            document.querySelectorAll('iframe[title="blank"]').forEach(f => f.remove());
+            document.querySelectorAll('[data-hbdbrk]').forEach(e => e.remove());
+            document.querySelectorAll('[data-actirise]').forEach(e => e.remove());
+            document.querySelectorAll('div[style*="position: fixed"]').forEach(e => {
+                var z = parseInt(e.style.zIndex) || 0;
+                if (z > 100) e.remove();
+            });
+        """)
 
     def is_quiz_loaded(self):
-        return self.is_visible(*self.QUIZ_CONTAINER, timeout=10)
+        return self.is_visible(*self.QUIZ_FORM, timeout=10)
 
-    def get_question_text(self):
-        return self.get_text(*self.QUESTION_TEXT)
+    def get_radio_count(self):
+        try:
+            return len(self.find_all(*self.RADIO_BUTTONS))
+        except:
+            return 0
 
-    def get_answer_count(self):
-        return len(self.find_all(*self.ANSWER_OPTIONS))
-
-    def select_answer(self, index):
-        options = self.find_all(*self.ANSWER_RADIO)
-        options[index].click()
+    def select_answer(self, index=0):
+        radios = self.find_all(*self.RADIO_BUTTONS)
+        if index < len(radios):
+            self.driver.execute_script("arguments[0].click();", radios[index])
         return self
+
+    def get_selected_value(self):
+        return self.driver.execute_script(
+            "var r = document.querySelector('input[type=radio]:checked'); return r ? r.value : null;"
+        )
 
     def submit_quiz(self):
-        self.click(*self.SUBMIT_QUIZ_BTN)
+        buttons = self.find_all(*self.SUBMIT_BUTTONS)
+        if buttons:
+            self.driver.execute_script("arguments[0].click();", buttons[0])
         return self
 
-    def next_question(self):
-        self.click(*self.NEXT_QUESTION_BTN)
-        return self
+    def get_label_texts(self):
+        labels = self.find_all(*self.LABELS)
+        return [l.text for l in labels if l.text.strip()]
 
-    def prev_question(self):
-        self.click(*self.PREV_QUESTION_BTN)
-        return self
+    def get_current_url(self):
+        return self.driver.current_url
 
-    def get_score(self):
-        return self.get_text(*self.SCORE_DISPLAY)
-
-    def get_feedback(self):
-        return self.get_text(*self.FEEDBACK)
-
-    def retake_quiz(self):
-        self.click(*self.RETAKE_BTN)
-        return self
-
-    def get_question_counter(self):
-        return self.get_text(*self.QUESTION_COUNTER)
-
-    def get_timer_text(self):
-        return self.get_text(*self.QUIZ_TIMER)
+    def has_submitted(self):
+        url = self.driver.current_url
+        return "=" in url.split("?")[-1] if "?" in url else False

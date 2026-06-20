@@ -1,54 +1,56 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 
 
 class ProgressPage(BasePage):
-    PAGE_TITLE = (By.CSS_SELECTOR, "h1.page-title")
-    PROGRESS_BARS = (By.CSS_SELECTOR, ".progress-bar")
-    PROGRESS_LABELS = (By.CSS_SELECTOR, ".progress-label")
-    PROGRESS_PERCENTAGES = (By.CSS_SELECTOR, ".progress-percentage")
+    PROGRESS_URL = "https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_progress"
+    SIMPLE_URL = "https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_default"
 
-    COURSE_LIST = (By.CSS_SELECTOR, ".course-progress-item")
-    COURSE_NAMES = (By.CSS_SELECTOR, ".course-progress-item .course-name")
-    COMPLETION_STATUS = (By.CSS_SELECTOR, ".completion-status")
-    COMPLETION_BADGE = (By.CSS_SELECTOR, ".completion-badge")
+    IFRAME = (By.ID, "iframeResult")
+    PROGRESS_ELEMENT = (By.CSS_SELECTOR, "progress")
+    PAGE_HEADING = (By.TAG_NAME, "h1")
+    BODY_TEXT = (By.TAG_NAME, "body")
 
-    CERTIFICATE_BTN = (By.ID, "download-certificate")
-    ACTIVITY_LOG = (By.CSS_SELECTOR, ".activity-log-entry")
-
-    def get_page_title_text(self):
-        return self.get_text(*self.PAGE_TITLE)
-
-    def get_progress_count(self):
+    def open(self):
+        self.driver.get(self.PROGRESS_URL)
         try:
-            return len(self.find_all(*self.PROGRESS_BARS))
-        except:
-            return 0
+            iframe = self.find(*self.IFRAME)
+            self.driver.switch_to.frame(iframe)
+        except Exception:
+            pass
+        return self
 
-    def get_progress_percentages(self):
-        elements = self.find_all(*self.PROGRESS_PERCENTAGES)
-        return [el.text for el in elements]
+    def switch_to_default(self):
+        self.driver.switch_to.default_content()
+        return self
 
-    def get_course_names(self):
-        elements = self.find_all(*self.COURSE_NAMES)
-        return [el.text for el in elements]
+    def is_progress_present(self):
+        return self.is_visible(*self.PROGRESS_ELEMENT, timeout=15)
 
-    def is_course_completed(self, index):
-        statuses = self.find_all(*self.COMPLETION_STATUS)
-        return "completed" in statuses[index].text.lower()
+    def get_progress_value(self):
+        el = self.find(*self.PROGRESS_ELEMENT)
+        return el.get_attribute("value")
 
-    def has_certificate(self):
-        return self.is_visible(*self.CERTIFICATE_BTN)
+    def get_progress_max(self):
+        el = self.find(*self.PROGRESS_ELEMENT)
+        return el.get_attribute("max")
 
-    def download_certificate(self):
-        self.click(*self.CERTIFICATE_BTN)
+    def get_progress_percentage(self):
+        val = self.get_progress_value()
+        mx = self.get_progress_max()
+        if val and mx:
+            return int(val) / int(mx) * 100
+        return 0
 
-    def get_activity_count(self):
+    def get_body_text(self):
+        body = self.find(*self.BODY_TEXT)
+        return body.text
+
+    def get_heading_text(self):
         try:
-            return len(self.find_all(*self.ACTIVITY_LOG))
-        except:
-            return 0
-
-    def get_completion_badges(self):
-        elements = self.find_all(*self.COMPLETION_BADGE)
-        return [el.text for el in elements]
+            h1 = self.find(*self.PAGE_HEADING)
+            return h1.text
+        except Exception:
+            return ""

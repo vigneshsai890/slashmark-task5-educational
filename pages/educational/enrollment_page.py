@@ -3,58 +3,85 @@ from pages.base_page import BasePage
 
 
 class EnrollmentPage(BasePage):
-    PAGE_TITLE = (By.CSS_SELECTOR, "h1.page-title")
-    COURSE_CATALOG = (By.ID, "course-catalog")
-    COURSE_CARDS = (By.CSS_SELECTOR, ".course-card")
-    COURSE_NAMES = (By.CSS_SELECTOR, ".course-card .course-name")
-    COURSE_DESCRIPTIONS = (By.CSS_SELECTOR, ".course-card .course-desc")
-    ENROLL_BTN = (By.CSS_SELECTOR, ".enroll-btn")
-    SEARCH_COURSE = (By.ID, "course-search")
-    SEARCH_BTN = (By.ID, "search-btn")
+    URL = "https://www.w3schools.com"
+    TUTORIAL_URL = "https://www.w3schools.com/html/"
 
-    CATEGORY_FILTER = (By.ID, "category-filter")
-    DIFFICULTY_FILTER = (By.ID, "difficulty-filter")
+    MAIN = (By.ID, "main")
+    SIDEBAR = (By.ID, "sidenav")
+    SIDEBAR_LINKS = (By.CSS_SELECTOR, "#sidenav a")
+    CONTENT_HEADING = (By.CSS_SELECTOR, "#main h1")
+    CONTENT_H2 = (By.CSS_SELECTOR, "#main h2")
+    SEARCH_CONTAINER = (By.ID, "tnb-google-search-container")
+    MAIN_LINKS = (By.CSS_SELECTOR, "#main a")
+    FOOTER = (By.ID, "footer")
+    Sidenav = (By.ID, "sidenav")
+    NAV_HOME = (By.CSS_SELECTOR, "#sidenav a[href='default.asp']")
 
-    ENROLLED_COURSES = (By.CSS_SELECTOR, ".enrolled-course")
-    CONFIRM_ENROLLMENT = (By.ID, "confirm-enroll")
-    ENROLLMENT_SUCCESS = (By.CSS_SELECTOR, ".enrollment-success")
+    def open(self):
+        self.driver.get(self.URL)
+        return self
 
-    def get_page_title_text(self):
-        return self.get_text(*self.PAGE_TITLE)
+    def open_tutorial_page(self):
+        self.driver.get(self.TUTORIAL_URL)
+        return self
 
-    def get_course_count(self):
+    def get_heading_text(self):
+        el = self.find(*self.CONTENT_HEADING)
+        return el.text
+
+    def get_h2_texts(self):
+        els = self.find_all(*self.CONTENT_H2)
+        return [e.text for e in els if e.text.strip()]
+
+    def is_main_present(self):
+        return self.is_visible(*self.MAIN)
+
+    def is_sidebar_present(self):
         try:
-            return len(self.find_all(*self.COURSE_CARDS))
+            self.find(*self.SIDEBAR)
+            return True
+        except:
+            return False
+
+    def is_sidenav_present(self):
+        try:
+            self.find(*self.Sidenav)
+            return True
+        except:
+            return False
+
+    def get_sidebar_link_count(self):
+        try:
+            return len(self.find_all(*self.SIDEBAR_LINKS))
         except:
             return 0
 
-    def get_course_names(self):
-        elements = self.find_all(*self.COURSE_NAMES)
-        return [el.text for el in elements]
-
-    def search_course(self, query):
-        self.type_text(*self.SEARCH_COURSE, query)
-        self.click(*self.SEARCH_BTN)
-        return self
-
-    def enroll_in_course(self, index=0):
-        btns = self.find_all(*self.ENROLL_BTN)
-        btns[index].click()
-        return self
-
-    def confirm_enrollment(self):
-        self.click(*self.CONFIRM_ENROLLMENT)
-        return self
-
-    def is_enrollment_successful(self):
-        return self.is_visible(*self.ENROLLMENT_SUCCESS)
-
-    def get_enrolled_count(self):
+    def get_main_link_count(self):
         try:
-            return len(self.find_all(*self.ENROLLED_COURSES))
+            return len(self.find_all(*self.MAIN_LINKS))
         except:
             return 0
 
-    def get_course_descriptions(self):
-        elements = self.find_all(*self.COURSE_DESCRIPTIONS)
-        return [el.text for el in elements]
+    def has_search(self):
+        try:
+            self.find(*self.SEARCH_CONTAINER)
+            return True
+        except:
+            return False
+
+    def has_footer(self):
+        try:
+            self.find(*self.FOOTER)
+            return True
+        except:
+            return False
+
+    def has_home_link(self):
+        try:
+            self.find(*self.NAV_HOME)
+            return True
+        except:
+            return False
+
+    def get_page_title(self):
+        return self.driver.title

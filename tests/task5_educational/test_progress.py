@@ -7,27 +7,28 @@ class TestProgressTracking:
     @pytest.fixture(autouse=True)
     def setup(self, driver):
         self.page = ProgressPage(driver)
-        self.page.driver.get("https://sandbox.moodledemo.net/my/")
+        self.page.open()
 
+    @pytest.mark.smoke
     def test_page_loads(self, driver):
-        assert self.page.is_visible(*self.page.COURSE_LIST, timeout=10)
+        assert self.page.is_progress_present()
 
-    def test_course_names_displayed(self, driver):
-        names = self.page.get_course_names()
-        assert len(names) > 0
+    def test_progress_has_value(self, driver):
+        val = self.page.get_progress_value()
+        assert val is not None
 
-    def test_progress_percentages(self, driver):
-        percentages = self.page.get_progress_percentages()
-        assert len(percentages) > 0
+    def test_progress_has_max(self, driver):
+        mx = self.page.get_progress_max()
+        assert mx is not None
 
-    def test_completion_status(self, driver):
-        count = self.page.get_progress_count()
-        assert count >= 0
+    def test_progress_percentage(self, driver):
+        pct = self.page.get_progress_percentage()
+        assert 0 < pct <= 100
 
-    def test_activity_log(self, driver):
-        count = self.page.get_activity_count()
-        assert count >= 0
+    def test_progress_value_is_numeric(self, driver):
+        val = self.page.get_progress_value()
+        assert val.isdigit()
 
-    def test_completion_badges(self, driver):
-        badges = self.page.get_completion_badges()
-        assert isinstance(badges, list)
+    def test_progress_max_is_100(self, driver):
+        mx = self.page.get_progress_max()
+        assert mx == "100"
