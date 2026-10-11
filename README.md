@@ -1,3 +1,45 @@
+<div align="center">
+
+<img src="docs/architecture.svg" alt="Slashmark Task 5 · Educational Testing architecture map" width="100%" />
+
+</div>
+
+# Slashmark Task 5 · Educational Testing
+
+> Browser automation for learning flows, navigation and interactive quiz surfaces.
+
+A Python + Selenium + pytest suite organized around page objects and repeatable educational-site scenarios.
+
+<div align="center">
+
+`Python · Selenium · pytest` &nbsp;·&nbsp; `test scenario → page object → browser interaction → assertion`
+
+</div>
+
+## `01 / SYSTEM CARD`
+
+- **Primary boundary:** `pytest fixture → page model → public demo site`
+- **Documentation stance:** architecture and presentation only; application source is intentionally untouched.
+- **Visual language:** Y2K terminal grid, brutalist labels, maximalist contrast, readable static SVG fallback.
+
+## `02 / ARCHITECTURE`
+
+The map above is a compact view of the repository's visible runtime boundary. It is designed to answer three questions quickly: where input enters, where policy or domain logic lives, and where external side effects leave the system.
+
+![Architecture map for Slashmark Task 5 · Educational Testing](docs/architecture.svg)
+
+## `03 / DESIGN NOTES`
+
+- The page-object layout keeps selectors and interaction details separate from test intent.
+- The original README lists the public demo flows covered by this task.
+
+This upgrade adds documentation assets only. It does not change source files, dependency manifests, tests, workflows or runtime configuration.
+
+## `04 / EXISTING PROJECT DOCUMENTATION`
+
+<details open>
+<summary>Read the original project notes</summary>
+
 # Task 5 — Educational Website Automation Testing
 
 Automated test suite for educational and interactive web pages using Python + Selenium + pytest. Uses real, publicly available demo sites that work reliably.
@@ -80,3 +122,6 @@ conftest.py                 — Chrome driver fixture + screenshot on failure
 ## Intern
 
 **M Vignesh Sai** — Slash Mark Internship (June 2026)
+
+</details>
+
